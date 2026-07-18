@@ -118,7 +118,7 @@ const Assessments = () => {
       <div className="glass-card" style={{ maxWidth: '800px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
             <div className="input-group">
               <label>Pilih Sekolah</label>
               <select className="glass-input glass-select" value={formData.schoolFilter} onChange={e => setFormData({...formData, schoolFilter: e.target.value, classFilter: '', student_id: ''})}>
@@ -146,7 +146,7 @@ const Assessments = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
             <div className="input-group">
               <label>Guru</label>
               <input type="text" className="glass-input" value={selectedStudent ? (selectedStudent.teacher_name || '-') : ''} disabled style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', cursor: 'not-allowed' }} />
@@ -158,14 +158,14 @@ const Assessments = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
             <div className="input-group">
               <label>Tanggal Penilaian</label>
               <input required type="date" className="glass-input" value={formData.assessment_date} onChange={e => setFormData({...formData, assessment_date: e.target.value})} />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
             <div className="input-group">
               <label>Jenis Penilaian</label>
               <select required className="glass-input glass-select" value={formData.assessment_type} onChange={e => setFormData({...formData, assessment_type: e.target.value})}>
@@ -184,7 +184,7 @@ const Assessments = () => {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem' }}>
              <div className="input-group">
               <label>Mata Pelajaran</label>
               <input required type="text" className="glass-input" placeholder="Contoh: Matematika" value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} />
