@@ -1,0 +1,46 @@
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Students from './pages/Students';
+import Attendance from './pages/Attendance';
+import Assessments from './pages/Assessments';
+import Reports from './pages/Reports';
+import Recap from './pages/Recap';
+import Login from './pages/Login';
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+
+  const handleLogin = (status) => {
+    setIsLoggedIn(status);
+    if (status) {
+      localStorage.setItem('isLoggedIn', 'true');
+    } else {
+      localStorage.removeItem('isLoggedIn');
+    }
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="students" element={<Students />} />
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="assessments" element={<Assessments />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="recap" element={<Recap />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
