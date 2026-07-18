@@ -88,6 +88,12 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 100vh;
 }
 
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+}
+
 .main-content {
   flex: 1;
   padding: 2rem;
@@ -96,6 +102,13 @@ h1, h2, h3, h4, h5, h6 {
   gap: 2rem;
   max-width: 100%;
   overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
 }
 
 /* Forms & Inputs */
