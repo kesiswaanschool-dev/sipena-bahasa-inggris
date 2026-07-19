@@ -162,17 +162,19 @@ const Students = () => {
 
   return (
     <div className="students-page">
-      <div className="flex justify-between items-center mb-6">
-        <h1>Data Murid</h1>
-        <div className="flex gap-4">
-          <button className="btn btn-outline" onClick={handleDownloadTemplate} title="Unduh Template CSV">
-            Template
-          </button>
-          <label className="btn btn-outline">
-            <Upload size={18} /> Import CSV
-            <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
-          </label>
-          <button className="btn btn-primary" onClick={handleAddNew}>
+      <div className="flex flex-mobile-col justify-between items-center mb-6 gap-4">
+        <h1 className="w-full-mobile text-left">Data Murid</h1>
+        <div className="flex flex-mobile-col gap-2 w-full-mobile">
+          <div className="flex gap-2 w-full-mobile">
+            <button className="btn btn-outline flex-1" style={{ justifyContent: 'center' }} onClick={handleDownloadTemplate} title="Unduh Template CSV">
+              Template
+            </button>
+            <label className="btn btn-outline flex-1" style={{ display: 'flex', justifyContent: 'center', margin: 0, cursor: 'pointer' }}>
+              <Upload size={18} /> <span className="hide-on-mobile" style={{ marginLeft: '4px' }}>Import CSV</span>
+              <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
+            </label>
+          </div>
+          <button className="btn btn-primary w-full-mobile" style={{ justifyContent: 'center' }} onClick={handleAddNew}>
             <Plus size={18} /> Tambah Murid
           </button>
         </div>
@@ -214,29 +216,29 @@ const Students = () => {
       )}
 
       <div className="glass-card">
-        <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-          <h3>Daftar Murid</h3>
-          <div className="flex gap-2 flex-wrap">
-            <select className="glass-input glass-select" style={{ padding: '0.5rem', width: 'auto' }} value={filterClass} onChange={(e) => setFilterClass(e.target.value)}>
+        <div className="flex flex-mobile-col justify-between items-center mb-4 gap-4">
+          <h3 className="w-full-mobile text-left">Daftar Murid</h3>
+          <div className="flex gap-2 flex-wrap grid-mobile-2 w-full-mobile">
+            <select className="glass-input glass-select" style={{ padding: '0.5rem' }} value={filterClass} onChange={(e) => setFilterClass(e.target.value)}>
               <option value="">Semua Kelas</option>
               {uniqueClasses.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            <select className="glass-input glass-select" style={{ padding: '0.5rem', width: 'auto' }} value={filterLevel} onChange={(e) => setFilterLevel(e.target.value)}>
+            <select className="glass-input glass-select" style={{ padding: '0.5rem' }} value={filterLevel} onChange={(e) => setFilterLevel(e.target.value)}>
               <option value="">Semua Jenjang</option>
               {uniqueLevels.map(l => <option key={l} value={l}>{l}</option>)}
             </select>
-            <select className="glass-input glass-select" style={{ padding: '0.5rem', width: 'auto' }} value={filterSchool} onChange={(e) => setFilterSchool(e.target.value)}>
+            <select className="glass-input glass-select grid-mobile-col-span-2" style={{ padding: '0.5rem' }} value={filterSchool} onChange={(e) => setFilterSchool(e.target.value)}>
               <option value="">Semua Sekolah</option>
               {uniqueSchools.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <div className="relative">
+            <div className="relative grid-mobile-col-span-2" style={{ flexGrow: 1 }}>
               <input 
                 type="text" 
-                className="glass-input" 
+                className="glass-input w-full" 
                 placeholder="Cari murid..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: '2.5rem', width: '200px' }}
+                style={{ paddingLeft: '2.5rem' }}
               />
               <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
             </div>
