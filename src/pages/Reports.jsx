@@ -145,29 +145,24 @@ const Reports = () => {
     }
   };
 
-  const handleDownloadCSV = () => {
+  const handleDownloadExcel = () => {
     let dataToDownload = [];
     let filename = '';
 
     if (activeTab === 'Absensi') {
       if (attendanceHistory.length === 0) return alert('Tidak ada data absensi untuk diunduh');
       dataToDownload = attendanceHistory.map(({ id, ...rest }) => rest);
-      filename = `Laporan_Absensi_Kelas_${filter.class}_${filter.type}.csv`;
+      filename = `Laporan_Absensi_Kelas_${filter.class}_${filter.type}.xls`;
     } else {
       if (assessmentHistory.length === 0) return alert('Tidak ada data penilaian untuk diunduh');
       dataToDownload = assessmentHistory.map(({ id, ...rest }) => rest);
-      filename = `Laporan_Penilaian_Kelas_${filter.class}_${filter.type}.csv`;
+      filename = `Laporan_Penilaian_Kelas_${filter.class}_${filter.type}.xls`;
     }
 
-    const csv = Papa.unparse(dataToDownload);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const ws = XLSX.utils.json_to_sheet(dataToDownload);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, activeTab);
+    XLSX.writeFile(wb, filename, { bookType: 'biff8' });
   };
 
   return (
@@ -260,8 +255,8 @@ const Reports = () => {
               Laporan Nilai
             </button>
           </div>
-          <button className="btn btn-outline" onClick={handleDownloadCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Download size={18} /> Unduh Data {activeTab} (CSV)
+          <button className="btn btn-outline" onClick={handleDownloadExcel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Download size={18} /> Unduh Data {activeTab} (Excel)
           </button>
         </div>
 

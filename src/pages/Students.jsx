@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import { Upload, Plus, Trash2, Search, Edit2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -49,35 +49,40 @@ const Students = () => {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      Papa.parse(file, {
-        header: true,
-        complete: async (results) => {
-          const parsedData = results.data.filter(row => row.Nama || row.name || row.Name);
-          const formattedData = parsedData.map(row => ({
-            name: row.Nama || row.name || row.Name || '',
-            class: row.Kelas || row.class || row.Class || '',
-            nisn: row.NISN || row.nisn || '',
-            teacher_name: row['Nama Guru'] || row.teacher_name || '',
-            education_level: row.Jenjang || row.education_level || '',
-            school_name: row['Nama Sekolah'] || row.school_name || ''
-          }));
-          
-          if (formattedData.length > 0) {
-            try {
-              const { error } = await supabase.from('students').insert(formattedData);
-              if (error) throw error;
-              alert('Data berhasil diimpor!');
-              fetchStudents();
-            } catch (err) {
-              console.error('Error importing:', err);
-              alert('Gagal impor, pastikan tabel Supabase siap.');
-            }
-          }
-        },
-        error: (err) => alert(`Error parsing file: ${err.message}`)
-      });
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheet];
+        const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+        const formattedData = json.map(row => ({
+          name: row.Nama || row.name || row.Name || '',
+          class: row.Kelas || row.class || row.Class || '',
+          nisn: row.NISN || row.nisn || '',
+          teacher_name: row['Nama Guru'] || row.teacher_name || '',
+          education_level: row.Jenjang || row.education_level || '',
+          school_name: row['Nama Sekolah'] || row.school_name || ''
+        })).filter(r => r.name);
+
+        if (formattedData.length > 0) {
+          const { error } = await supabase.from('students').insert(formattedData);
+          if (error) throw error;
+          alert('Data berhasil diimpor!');
+          fetchStudents();
+        } else {
+          alert('Tidak ada data murid yang valid ditemukan di file Excel.');
+        }
+      } catch (err) {
+        console.error('Error importing:', err);
+        alert('Gagal impor, pastikan format file Excel/CSV sesuai.');
+      }
+    };
+    reader.readAsArrayBuffer(file);
   };
 
   const handleSubmit = async (e) => {
@@ -114,14 +119,36 @@ const Students = () => {
   };
 
   const handleDownloadTemplate = () => {
-    const csvContent = "data:text/csv;charset=utf-8,Nama,Kelas,NISN,Nama Guru,Jenjang,Nama Sekolah\nBudi Santoso,10A,0012345678,Pak Budi,SMA,SMAN 1\nSiti Aminah,10A,0012345679,Pak Budi,SMA,SMAN 1";
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "template_murid.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const templateData = [
+      {
+        'Nama': 'Budi Santoso',
+        'Kelas': '10A',
+        'NISN': '0012345678',
+        'Nama Guru': 'Pak Budi',
+        'Jenjang': 'SMA',
+        'Nama Sekolah': 'SMAN 1'
+      },
+      {
+        'Nama': 'Siti Aminah',
+        'Kelas': '10A',
+        'NISN': '0012345679',
+        'Nama Guru': 'Pak Budi',
+        'Jenjang': 'SMA',
+        'Nama Sekolah': 'SMAN 1'
+      }
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    ws['!cols'] = [
+      { wch: 25 },
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 10 },
+      { wch: 25 }
+    ];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template Murid');
+    XLSX.writeFile(wb, 'template_murid.xls', { bookType: 'biff8' });
   };
 
   const handleEdit = (student) => {
@@ -166,12 +193,12 @@ const Students = () => {
         <h1 className="w-full-mobile text-left">Data Murid</h1>
         <div className="flex flex-mobile-col gap-2 w-full-mobile">
           <div className="flex gap-2 w-full-mobile">
-            <button className="btn btn-outline flex-1" style={{ justifyContent: 'center' }} onClick={handleDownloadTemplate} title="Unduh Template CSV">
-              Template
+            <button className="btn btn-outline flex-1" style={{ justifyContent: 'center' }} onClick={handleDownloadTemplate} title="Unduh Template Excel (.xls)">
+              Template (.xls)
             </button>
             <label className="btn btn-outline flex-1" style={{ display: 'flex', justifyContent: 'center', margin: 0, cursor: 'pointer' }}>
-              <Upload size={18} /> <span className="hide-on-mobile" style={{ marginLeft: '4px' }}>Import CSV</span>
-              <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
+              <Upload size={18} /> <span className="hide-on-mobile" style={{ marginLeft: '4px' }}>Import Excel</span>
+              <input type="file" accept=".xls,.xlsx,.csv" style={{ display: 'none' }} onChange={handleFileUpload} />
             </label>
           </div>
           <button className="btn btn-primary w-full-mobile" style={{ justifyContent: 'center' }} onClick={handleAddNew}>

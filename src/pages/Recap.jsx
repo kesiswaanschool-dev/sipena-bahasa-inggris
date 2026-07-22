@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import { Download } from 'lucide-react';
 
 const Recap = () => {
@@ -122,7 +122,7 @@ const Recap = () => {
     }
   };
 
-  const handleDownloadCSV = () => {
+  const handleDownloadExcel = () => {
     if (recapData.length === 0) return alert('Tidak ada data rekap untuk diunduh');
     
     const dataToDownload = recapData.map((row, index) => {
@@ -140,15 +140,10 @@ const Recap = () => {
       return formattedRow;
     });
 
-    const csv = Papa.unparse(dataToDownload);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Rekap_Nilai_Kelas_${filter.class}_${filter.semester}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const ws = XLSX.utils.json_to_sheet(dataToDownload);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Rekapitulasi');
+    XLSX.writeFile(wb, `Rekap_Nilai_Kelas_${filter.class}_${filter.semester}.xls`, { bookType: 'biff8' });
   };
 
   return (
@@ -205,8 +200,8 @@ const Recap = () => {
             </div>
           </div>
           
-          <button className="btn btn-outline" onClick={handleDownloadCSV} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Download size={18} /> Export CSV
+          <button className="btn btn-outline" onClick={handleDownloadExcel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Download size={18} /> Export Excel (.xls)
           </button>
         </div>
 
