@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-import { Upload, Plus, Trash2, Search, Edit2 } from 'lucide-react';
+import { Upload, Plus, Trash2, Search, Edit2, RotateCcw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const Students = () => {
@@ -118,6 +118,31 @@ const Students = () => {
     }
   };
 
+  const handleResetAllData = async () => {
+    if (students.length === 0) {
+      alert('Tidak ada data murid untuk di-reset.');
+      return;
+    }
+    const confirmReset = window.confirm(
+      `⚠️ PERINGATAN BERSYARAT:\nApakah Anda yakin ingin MENGHAPUS SELURUH DATA MURID (${students.length} murid)?\n\nSemua data murid akan dihapus secara permanen dari sistem dan tindakan ini TIDAK DAPAT DIBATALKAN!`
+    );
+    if (!confirmReset) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.from('students').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error) throw error;
+      setStudents([]);
+      alert('Berhasil! Seluruh data murid telah di-reset (dihapus).');
+      fetchStudents();
+    } catch (err) {
+      console.error('Error resetting students:', err);
+      alert('Gagal me-reset data murid: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDownloadTemplate = () => {
     try {
       const templateData = [
@@ -209,7 +234,7 @@ const Students = () => {
       <div className="flex flex-mobile-col justify-between items-center mb-6 gap-4">
         <h1 className="w-full-mobile text-left">Data Murid</h1>
         <div className="flex flex-mobile-col gap-2 w-full-mobile">
-          <div className="flex gap-2 w-full-mobile">
+          <div className="flex gap-2 w-full-mobile flex-wrap">
             <button className="btn btn-outline flex-1" style={{ justifyContent: 'center' }} onClick={handleDownloadTemplate} title="Unduh Template Excel (.xls)">
               Template (.xls)
             </button>
@@ -217,6 +242,14 @@ const Students = () => {
               <Upload size={18} /> <span className="hide-on-mobile" style={{ marginLeft: '4px' }}>Import Excel</span>
               <input type="file" accept=".xls,.xlsx,.csv" style={{ display: 'none' }} onChange={handleFileUpload} />
             </label>
+            <button 
+              className="btn btn-outline flex-1" 
+              style={{ justifyContent: 'center', color: '#f87171', borderColor: 'rgba(248, 113, 113, 0.4)', background: 'rgba(239, 68, 68, 0.08)' }} 
+              onClick={handleResetAllData}
+              title="Reset Seluruh Data Murid"
+            >
+              <RotateCcw size={18} /> <span className="hide-on-mobile" style={{ marginLeft: '4px' }}>Reset Data</span>
+            </button>
           </div>
           <button className="btn btn-primary w-full-mobile" style={{ justifyContent: 'center' }} onClick={handleAddNew}>
             <Plus size={18} /> Tambah Murid
