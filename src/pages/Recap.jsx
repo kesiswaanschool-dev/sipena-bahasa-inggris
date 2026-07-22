@@ -123,27 +123,47 @@ const Recap = () => {
   };
 
   const handleDownloadExcel = () => {
-    if (recapData.length === 0) return alert('Tidak ada data rekap untuk diunduh');
-    
-    const dataToDownload = recapData.map((row, index) => {
-      const formattedRow = {
-        'No': index + 1,
-        'TGL': row.tgl,
-        'Nama': row.name,
-        'Kelas': row.class
-      };
+    try {
+      if (!recapData || recapData.length === 0) {
+        alert('Tidak ada data rekap untuk diunduh. Silakan klik "Generate Rekap" terlebih dahulu.');
+        return;
+      }
       
-      assessmentColumns.forEach(col => {
-        formattedRow[col.toUpperCase()] = row.scores[col] || '';
+      const dataToDownload = recapData.map((row, index) => {
+        const formattedRow = {
+          'No': index + 1,
+          'TGL': row.tgl || '',
+          'Nama': row.name || '',
+          'Kelas': row.class || ''
+        };
+        
+        assessmentColumns.forEach(col => {
+          formattedRow[col.toUpperCase()] = row.scores[col] || '';
+        });
+        
+        return formattedRow;
       });
-      
-      return formattedRow;
-    });
 
-    const ws = XLSX.utils.json_to_sheet(dataToDownload);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Rekapitulasi');
-    XLSX.writeFile(wb, `Rekap_Nilai_Kelas_${filter.class}_${filter.semester}.xls`, { bookType: 'biff8' });
+      const ws = XLSX.utils.json_to_sheet(dataToDownload);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Rekapitulasi');
+      
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Rekap_Nilai_Kelas_${filter.class || 'Semua'}_${filter.semester}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (err) {
+      console.error('Error downloading recap excel:', err);
+      alert('Gagal mengunduh file rekap: ' + err.message);
+    }
   };
 
   return (

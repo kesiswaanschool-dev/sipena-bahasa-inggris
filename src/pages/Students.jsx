@@ -119,36 +119,53 @@ const Students = () => {
   };
 
   const handleDownloadTemplate = () => {
-    const templateData = [
-      {
-        'Nama': 'Budi Santoso',
-        'Kelas': '10A',
-        'NISN': '0012345678',
-        'Nama Guru': 'Pak Budi',
-        'Jenjang': 'SMA',
-        'Nama Sekolah': 'SMAN 1'
-      },
-      {
-        'Nama': 'Siti Aminah',
-        'Kelas': '10A',
-        'NISN': '0012345679',
-        'Nama Guru': 'Pak Budi',
-        'Jenjang': 'SMA',
-        'Nama Sekolah': 'SMAN 1'
-      }
-    ];
-    const ws = XLSX.utils.json_to_sheet(templateData);
-    ws['!cols'] = [
-      { wch: 25 },
-      { wch: 10 },
-      { wch: 15 },
-      { wch: 20 },
-      { wch: 10 },
-      { wch: 25 }
-    ];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Template Murid');
-    XLSX.writeFile(wb, 'template_murid.xls', { bookType: 'biff8' });
+    try {
+      const templateData = [
+        {
+          'Nama': 'Budi Santoso',
+          'Kelas': '10A',
+          'NISN': '0012345678',
+          'Nama Guru': 'Pak Budi',
+          'Jenjang': 'SMA',
+          'Nama Sekolah': 'SMAN 1'
+        },
+        {
+          'Nama': 'Siti Aminah',
+          'Kelas': '10A',
+          'NISN': '0012345679',
+          'Nama Guru': 'Pak Budi',
+          'Jenjang': 'SMA',
+          'Nama Sekolah': 'SMAN 1'
+        }
+      ];
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      ws['!cols'] = [
+        { wch: 25 },
+        { wch: 10 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 25 }
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Template Murid');
+      
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'template_murid.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (err) {
+      console.error('Error downloading template:', err);
+      alert('Gagal unduh template: ' + err.message);
+    }
   };
 
   const handleEdit = (student) => {

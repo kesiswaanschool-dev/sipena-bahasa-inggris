@@ -146,23 +146,68 @@ const Reports = () => {
   };
 
   const handleDownloadExcel = () => {
-    let dataToDownload = [];
-    let filename = '';
+    try {
+      let dataToDownload = [];
+      let filename = '';
 
-    if (activeTab === 'Absensi') {
-      if (attendanceHistory.length === 0) return alert('Tidak ada data absensi untuk diunduh');
-      dataToDownload = attendanceHistory.map(({ id, ...rest }) => rest);
-      filename = `Laporan_Absensi_Kelas_${filter.class}_${filter.type}.xls`;
-    } else {
-      if (assessmentHistory.length === 0) return alert('Tidak ada data penilaian untuk diunduh');
-      dataToDownload = assessmentHistory.map(({ id, ...rest }) => rest);
-      filename = `Laporan_Penilaian_Kelas_${filter.class}_${filter.type}.xls`;
+      if (activeTab === 'Absensi') {
+        if (!attendanceHistory || attendanceHistory.length === 0) {
+          alert('Tidak ada data absensi untuk diunduh. Silakan klik "Generate Laporan" terlebih dahulu.');
+          return;
+        }
+        dataToDownload = attendanceHistory.map((item, index) => ({
+          'No': index + 1,
+          'Tanggal': item.tanggal || '',
+          'Nama Murid': item.nama_murid || '',
+          'Kelas': item.kelas || '',
+          'Guru': item.guru || '',
+          'Sekolah': item.sekolah || '',
+          'Jenjang': item.jenjang || '',
+          'Status': item.status || '',
+          'Keterangan': item.keterangan || ''
+        }));
+        filename = `Laporan_Absensi_Kelas_${filter.class || 'Semua'}_${filter.type}.xlsx`;
+      } else {
+        if (!assessmentHistory || assessmentHistory.length === 0) {
+          alert('Tidak ada data penilaian untuk diunduh. Silakan klik "Generate Laporan" terlebih dahulu.');
+          return;
+        }
+        dataToDownload = assessmentHistory.map((item, index) => ({
+          'No': index + 1,
+          'Tanggal': item.tanggal || '',
+          'Nama Murid': item.nama_murid || '',
+          'Kelas': item.kelas || '',
+          'Guru': item.guru || '',
+          'Sekolah': item.sekolah || '',
+          'Jenjang': item.jenjang || '',
+          'Jenis': item.jenis || '',
+          'Mata Pelajaran': item.mata_pelajaran || '',
+          'Materi': item.materi || '',
+          'Nilai': item.nilai ?? ''
+        }));
+        filename = `Laporan_Penilaian_Kelas_${filter.class || 'Semua'}_${filter.type}.xlsx`;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(dataToDownload);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, activeTab);
+      
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    } catch (err) {
+      console.error('Error downloading excel:', err);
+      alert('Gagal mengunduh file: ' + err.message);
     }
-
-    const ws = XLSX.utils.json_to_sheet(dataToDownload);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, activeTab);
-    XLSX.writeFile(wb, filename, { bookType: 'biff8' });
   };
 
   return (
@@ -256,7 +301,7 @@ const Reports = () => {
             </button>
           </div>
           <button className="btn btn-outline" onClick={handleDownloadExcel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Download size={18} /> Unduh Data {activeTab} (Excel)
+            <Download size={18} /> {activeTab === 'Absensi' ? 'Unduh Data Absensi (.xls)' : 'Unduh Data Laporan (.xls)'}
           </button>
         </div>
 
