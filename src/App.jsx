@@ -7,6 +7,7 @@ import Attendance from './pages/Attendance';
 import Assessments from './pages/Assessments';
 import Reports from './pages/Reports';
 import Recap from './pages/Recap';
+import AttendanceRecap from './pages/AttendanceRecap';
 import Login from './pages/Login';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <Route path="assessments" element={<Assessments />} />
           <Route path="reports" element={<Reports />} />
           <Route path="recap" element={<Recap />} />
+          <Route path="attendance-recap" element={<AttendanceRecap />} />
         </Route>
       </Routes>
     </Router>

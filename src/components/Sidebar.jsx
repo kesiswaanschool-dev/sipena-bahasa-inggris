@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, UserCheck, FileEdit, FileBarChart, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, FileEdit, FileBarChart, CalendarCheck, LogOut } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -10,7 +10,8 @@ const Sidebar = () => {
     { name: 'Absensi', icon: <UserCheck size={20} />, path: '/attendance' },
     { name: 'Penilaian', icon: <FileEdit size={20} />, path: '/assessments' },
     { name: 'Laporan', icon: <FileBarChart size={20} />, path: '/reports' },
-    { name: 'Rekapitulasi', icon: <FileBarChart size={20} />, path: '/recap' },
+    { name: 'Rekap Nilai', icon: <FileBarChart size={20} />, path: '/recap' },
+    { name: 'Rekap Absensi', icon: <CalendarCheck size={20} />, path: '/attendance-recap' },
   ];
 
   return (
